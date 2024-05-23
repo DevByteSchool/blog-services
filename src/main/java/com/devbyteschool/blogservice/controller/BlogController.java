@@ -1,10 +1,7 @@
 package com.devbyteschool.blogservice.controller;
 
 
-import com.devbyteschool.blogservice.dto.CommonPaginationRequest;
-import com.devbyteschool.blogservice.dto.CreateBlogRequest;
-import com.devbyteschool.blogservice.dto.DBSResponseEntity;
-import com.devbyteschool.blogservice.dto.UpdateBlogRequest;
+import com.devbyteschool.blogservice.dto.*;
 import com.devbyteschool.blogservice.exception.RecordNotFoundException;
 import com.devbyteschool.blogservice.model.Blog;
 import com.devbyteschool.blogservice.service.BlogService;
@@ -77,11 +74,11 @@ public class BlogController {
         DBSResponseEntity dbsResponseEntity = new DBSResponseEntity();
 
         try {
-            Blog getBlog = blogService.getBlog(blogId);
-            dbsResponseEntity.setData(getBlog);
+            GetBlogResponse getBlogResponse = blogService.getBlog(blogId);
+            dbsResponseEntity.setData(getBlogResponse);
             return ResponseEntity.ok(dbsResponseEntity);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.info(exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 

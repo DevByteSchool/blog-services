@@ -1,10 +1,10 @@
 package com.devbyteschool.blogservice.service;
 
-import com.devbyteschool.blogservice.dto.CommonPaginationRequest;
-import com.devbyteschool.blogservice.dto.CreateBlogRequest;
-import com.devbyteschool.blogservice.dto.UpdateBlogRequest;
+import com.devbyteschool.blogservice.dto.*;
 import com.devbyteschool.blogservice.model.Blog;
+import com.devbyteschool.blogservice.openfeign.CommentServices;
 import com.devbyteschool.blogservice.repository.BlogRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,12 @@ public class BlogService {
     @Autowired
     private BlogRepository blogRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
+    @Autowired
+    private CommentServices commentServices;
 
     public Blog createBlog(CreateBlogRequest createBlogRequest) throws Exception {
         Blog blog = new Blog();
@@ -46,8 +52,14 @@ public class BlogService {
         blogRepository.deleteByBlogId(blogId);
     }
 
-    public Blog getBlog(String blogId) throws Exception {
-        return blogRepository.findByBlogId(blogId);
+    public GetBlogResponse getBlog(String blogId) throws Exception {
+        Blog blog = blogRepository.findByBlogId(blogId);
+        GetBlogResponse getBlogResponse = new GetBlogResponse();
+        BeanUtils.copyProperties(blog,getBlogResponse);
+        CommentResponse commentResponse = objectMapper.readValue(commentServices.getBlogCall(blog.getBlogId()).getBody(),CommentResponse.class);
+        getBlogResponse.setComments(commentResponse.getData());
+        return getBlogResponse;
+
     }
 
     public List<Blog> getBlogs(CommonPaginationRequest commonPaginationRequest) throws Exception {
